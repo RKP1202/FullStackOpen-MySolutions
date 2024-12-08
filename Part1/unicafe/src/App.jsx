@@ -14,6 +14,25 @@ const Display = (props) => {
   );
 };
 
+// Statistics Component
+const Statistics = ({ good, neutral, bad, total, positivePercentage, average }) => {
+  if (total === 0) {
+    return <p>No feedback given</p>;
+  }
+
+  return (
+    <div>
+      <h2>Statistics</h2>
+      <Display text="Good" value={good} />
+      <Display text="Neutral" value={neutral} />
+      <Display text="Bad" value={bad} />
+      <Display text="Total" value={total} />
+      <Display text="Positive Feedback" value={`${positivePercentage} %`} />
+      <Display text="Average Score" value={average} />
+    </div>
+  );
+};
+
 const App = () => {
   const [good, setGood] = useState(0);
   const [neutral, setNeutral] = useState(0);
@@ -34,13 +53,14 @@ const App = () => {
       <Button onclick={handleNeutralClick} text="Neutral" />
       <Button onclick={handleBadClick} text="Bad" />
 
-      <h2>Statistics</h2>
-      <Display text="Good" value={good} />
-      <Display text="Neutral" value={neutral} />
-      <Display text="Bad" value={bad} />
-      <Display text="Total" value={total} />
-      <Display text="Positive Feedback" value={`${positivePercentage} %`} />
-      <Display text="Average Score" value={average} />
+      <Statistics
+        good={good}
+        neutral={neutral}
+        bad={bad}
+        total={total}
+        positivePercentage={positivePercentage}
+        average={average}
+      />
     </>
   );
 };
