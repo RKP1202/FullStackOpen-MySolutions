@@ -3,7 +3,9 @@ import { useState } from 'react'
 import Filter from './components/Filter'
 import PersonForm from './components/PersonForm'
 import Persons from './components/Persons'
+import personService from './services/Person'
 import axios from 'axios'
+
 
 
 const App = () => {
@@ -13,47 +15,85 @@ const App = () => {
   const [searchValue, setSearchValue] = useState('');
 
   useEffect(() => {
-    axios
-      .get('http://localhost:3001/persons')
-      .then(response => {
-        setPersons(response.data)
-      },)
-  } , [])
+    personService.getAll().then(initialPersons => {
+      setPersons(initialPersons)
+    })
+  }, [])
   // console.log(typeof(persons[0].number));
+
+  const handleDelete = (id) => {
+    console.log(id);
+    if (window.confirm(`Do you really want to delete person with id ${id}`)) {
+      const url = `http://localhost:3001/persons/${id}`
+      // console.log(`Person to be delted has id ${id}`);
+      axios
+        .delete(url)
+        .then(() => {
+          setPersons(persons.filter(p => p.id !== id));
+        })
+        .catch(error => {
+          console.error('Error in deleting the Persons entry:', error);
+        });
+    }
+
+  }
+
 
   const handleSubmit = (event) => {
     event.preventDefault();
-
-    // Checking for duplicates
+  
+    // Check if the name already exists in the phonebook
     const isDuplicate = persons.some((person) => person.name === newName);
-
+  
     if (isDuplicate) {
-      alert(`${newName} is already added to the phonebook`);
+      if (window.confirm(`${newName} is already added to the phonebook. Would you like to update the number with the new one?`)) {
+        const existingPerson = persons.find(person => person.name === newName);
+  
+        const updatedDetails = { ...existingPerson, number: newNumber };
+  
+        personService.updatePerson(existingPerson.id, updatedDetails)
+          .then(updatedPerson => {
+            setPersons(persons.map(person =>
+              person.id === existingPerson.id ? updatedPerson : person
+            ));
+            setNewName('');
+            setNewNumber('');
+          })
+          .catch(error => {
+            console.error('Error while updating the contact:', error);
+            alert(`The entry for ${newName} seems to be missing on the server. It might have been removed.`);
+            setPersons(persons.filter(person => person.id !== existingPerson.id));
+          });
+      }
     } else {
-      const newPerson =
-      {
+      const newPerson = {
         name: newName,
-        number: newNumber,
-        id: persons.length + 1
+        number: newNumber
       };
-      setPersons(persons.concat(newPerson));
-      setNewName('');
-      setNewNumber('');
-
+  
+      personService.addPerson(newPerson)
+        .then(responseData => {
+          setPersons(persons.concat(responseData));
+          setNewName('');
+          setNewNumber('');
+        })
+        .catch(error => {
+          console.error('Error while adding a new person:', error);
+          alert('Failed to add the new contact. Please try again.');
+        });
     }
   };
+  
 
 
   const handleChangeName = (event) => {
     console.log(event.target)
     setNewName(event.target.value)
-
   }
 
   const handleChangeNumber = (event) => {
     console.log(event.target)
     setNewNumber(event.target.value)
-
   }
 
   const handleChangeSearch = (e) => {
@@ -75,7 +115,7 @@ const App = () => {
       <h3>Add a new</h3>
       <PersonForm newName={newName} newNumber={newNumber} handleChangeName={handleChangeName} handleChangeNumber={handleChangeNumber} handleSubmit={handleSubmit} />
       <h2>Numbers</h2>
-      <Persons filteredPersons={filteredPersons} />
+      <Persons filteredPersons={filteredPersons} handleDelete={handleDelete} />
     </div>
   )
 }
