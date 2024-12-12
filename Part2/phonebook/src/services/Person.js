@@ -18,7 +18,7 @@ const updatePerson = (id, updatedDetails) => {
 };
 
 
-const deletePerson = () => {
+const deletePerson = (id) => {
     const url = `http://localhost:3001/persons/${id}`
     // console.log(`Person to be delted has id ${id}`);
     return axios.delete(url);

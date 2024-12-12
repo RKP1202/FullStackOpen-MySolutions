@@ -4,7 +4,7 @@ import Filter from './components/Filter'
 import PersonForm from './components/PersonForm'
 import Persons from './components/Persons'
 import personService from './services/Person'
-
+import AppNotifaction from './components/Notification'
 
 
 const App = () => {
@@ -12,6 +12,8 @@ const App = () => {
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [searchValue, setSearchValue] = useState('');
+  const [notification, setNotification] = useState({ message: '', type: '' });
+
 
   useEffect(() => {
     personService.getAll().then(initialPersons => {
@@ -25,11 +27,15 @@ const App = () => {
     if (window.confirm(`Do you really want to delete person with id ${id}`)) {
       // console.log(`Person to be delted has id ${id}`);
       personService
-        .deletePerson
+        .deletePerson(id)
         .then(() => {
           setPersons(persons.filter(p => p.id !== id));
+          setNotification({ message: 'Person deleted successfully', type: 'success' });
+          setTimeout(() => setNotification({ message: '', type: '' }), 3000);
         })
         .catch(error => {
+          setNotification({ message: 'Failed to delete person. It might already be removed.', type: 'error' });
+          setTimeout(() => setNotification({ message: '', type: '' }), 3000);
           console.error('Error in deleting the Persons entry:', error);
         });
     }
@@ -56,11 +62,13 @@ const App = () => {
             ));
             setNewName('');
             setNewNumber('');
+            setNotification({ message: `Updated ${existingPerson.name}'s number`, type: 'success' });
+            setTimeout(() => setNotification({ message: '', type: '' }), 3000);
           })
           .catch(error => {
-            console.error('Error while updating the contact:', error);
-            alert(`The entry for ${newName} seems to be missing on the server. It might have been removed.`);
+            setNotification({ message: `Error updating ${existingPerson.name}. It might have been removed.`, type: 'error' });
             setPersons(persons.filter(person => person.id !== existingPerson.id));
+            setTimeout(() => setNotification({ message: '', type: '' }), 3000);
           });
       }
     } else {
@@ -72,16 +80,28 @@ const App = () => {
       personService.addPerson(newPerson)
         .then(responseData => {
           setPersons(persons.concat(responseData));
-          setNewName('');
           setNewNumber('');
+          setNewName('');
+          setNotification(`Added ${newName}`)
+          setNotification({ message: `Added ${newName}`, type: 'success' });
+          setTimeout(() => setNotification({ message: '', type: '' }), 3000);
         })
         .catch(error => {
           console.error('Error while adding a new person:', error);
           alert('Failed to add the new contact. Please try again.');
         });
+      // personService.addPerson(newPerson)
+      // .then(responseData => {
+      //   setPersons(persons.concat(responseData));
+      //   setNewName('');
+      //   setNewNumber('');
+      // })
+      // .catch(error => {
+      //   console.error('Error while adding a new person:', error);
+      //   alert('Failed to add the new contact. Please try again.');
+      // });
     }
   };
-
 
 
   const handleChangeName = (event) => {
@@ -106,8 +126,8 @@ const App = () => {
 
   return (
     <div>
-      <h2>Phonebook</h2>
-
+      <h1>Phonebook</h1>
+      <AppNotifaction message={notification.message} type={notification.type} />
       <Filter searchValue={searchValue} handleChangeSearch={handleChangeSearch} />
 
       <h3>Add a new</h3>
