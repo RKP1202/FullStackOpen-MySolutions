@@ -8,7 +8,8 @@ import AppNotifaction from './components/Notification'
 
 
 const App = () => {
-  const [persons, setPersons] = useState([])
+  const [persons, setPersons] = useState(null)
+  // const [persons, setPersons] = useState([])
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [searchValue, setSearchValue] = useState('');
@@ -21,6 +22,11 @@ const App = () => {
     })
   }, [])
   // console.log(typeof(persons[0].number));
+
+  if(!persons)
+  {
+    return null;
+  }
 
   const handleDelete = (id) => {
     console.log(id);
