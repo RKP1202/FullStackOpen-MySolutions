@@ -4,7 +4,6 @@ import Filter from './components/Filter'
 import PersonForm from './components/PersonForm'
 import Persons from './components/Persons'
 import personService from './services/Person'
-import axios from 'axios'
 
 
 
@@ -24,10 +23,9 @@ const App = () => {
   const handleDelete = (id) => {
     console.log(id);
     if (window.confirm(`Do you really want to delete person with id ${id}`)) {
-      const url = `http://localhost:3001/persons/${id}`
       // console.log(`Person to be delted has id ${id}`);
-      axios
-        .delete(url)
+      personService
+        .deletePerson
         .then(() => {
           setPersons(persons.filter(p => p.id !== id));
         })
@@ -41,16 +39,16 @@ const App = () => {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-  
+
     // Check if the name already exists in the phonebook
     const isDuplicate = persons.some((person) => person.name === newName);
-  
+
     if (isDuplicate) {
       if (window.confirm(`${newName} is already added to the phonebook. Would you like to update the number with the new one?`)) {
         const existingPerson = persons.find(person => person.name === newName);
-  
+
         const updatedDetails = { ...existingPerson, number: newNumber };
-  
+
         personService.updatePerson(existingPerson.id, updatedDetails)
           .then(updatedPerson => {
             setPersons(persons.map(person =>
@@ -70,7 +68,7 @@ const App = () => {
         name: newName,
         number: newNumber
       };
-  
+
       personService.addPerson(newPerson)
         .then(responseData => {
           setPersons(persons.concat(responseData));
@@ -83,7 +81,7 @@ const App = () => {
         });
     }
   };
-  
+
 
 
   const handleChangeName = (event) => {

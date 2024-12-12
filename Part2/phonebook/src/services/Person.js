@@ -8,15 +8,21 @@ const getAll = () => {
 }
 
 const addPerson = (newPersonObject) => {
-    const request = axios.post(base_url , newPersonObject);
+    const request = axios.post(base_url, newPersonObject);
     return request.then(response => response.data);
 }
 
 const updatePerson = (id, updatedDetails) => {
     const url = `http://localhost:3001/persons/${id}`;
     return axios.put(url, updatedDetails).then(response => response.data);
-  };
-  
+};
 
 
-export default {getAll , addPerson , updatePerson}
+const deletePerson = () => {
+    const url = `http://localhost:3001/persons/${id}`
+    // console.log(`Person to be delted has id ${id}`);
+    return axios.delete(url);
+}
+
+
+export default { getAll, addPerson, updatePerson  , deletePerson}
