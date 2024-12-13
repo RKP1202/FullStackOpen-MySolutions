@@ -39,26 +39,26 @@ const App = () => {
           <p>Too many matches, please narrow down your search.</p>
         )
           : filteredCountries.length === 1 && searchValue ? (
-            <DisplayCountry country={filteredCountries[0]}/>
-          ) 
-          : singleViewCountry ? (
-            <DisplayCountry country={singleViewCountry}/>
+            <DisplayCountry country={filteredCountries[0]} />
           )
-            : (
-              <ul>
-                {filteredCountries.map((country) => (
-                  <li key={country.name.common}>
-                    {country.name.common}
-                    <button onClick={() => {
-                      // console.log(country);
-                      setSingleViewCountry(country)
-                    }}>
-                      Show
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
+            : singleViewCountry ? (
+              <DisplayCountry country={singleViewCountry} />
+            )
+              : (
+                <ul>
+                  {filteredCountries.map((country) => (
+                    <li key={country.name.common}>
+                      {country.name.common}
+                      <button onClick={() => {
+                        // console.log(country);
+                        setSingleViewCountry(country)
+                      }}>
+                        Show
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
       </div>
     </>
   );
