@@ -1,65 +1,22 @@
-// import React from 'react'
-// import { useState, useEffect } from 'react'
-// import countryService from './services/Countries'
-
-// const App = () => {
-
-//   const [searchValue, setSearchValue] = useState("")
-//   const [allCountries, setAllcountries] = useState([])
-//   const [filteredCountries, setFilteredCountries] = useState([])
-//   const handleChange = (event) => {
-//     setSearchValue(event.target.value)
-//     console.log(event.target.value);
-//   }
-
-//   useEffect(() => {
-//     const request = countryService
-//       .getAll()
-//       .then(response => {
-//         setAllcountries(response.data)
-//       })
-//   }, [])
-
-//   // console.log(allCountries);
-//   return (
-//     <>
-//       <div>
-//         Find Countries
-//         <input type="text" value={searchValue} onChange={handleChange} />
-//       </div>
-//       <div>
-//         <h2>Results</h2>
-//         <ul>
-//           {filteredCountries.map((country) => (
-//             <li key={country.name.common}>{country.name.common}</li>
-//           ))}
-//         </ul>
-//       </div>
-//     </>
-//   )
-// }
-
-// export default App
-
-
-
 import React, { useState, useEffect } from 'react';
 import countryService from './services/Countries';
+import DisplayCountry from './Components/DisplayCountry';
 
 const App = () => {
   const [searchValue, setSearchValue] = useState('');
   const [allCountries, setAllCountries] = useState([]);
   const [filteredCountries, setFilteredCountries] = useState([]);
+  const [singleViewCountry, setSingleViewCountry] = useState(null);
 
   const handleChange = (event) => {
     const value = event.target.value;
     setSearchValue(value);
 
-    // Filter countries as the user types
-    const filtered = allCountries.filter((country) =>
+    const countriesToDisplay = allCountries.filter((country) =>
       country.name.common.toLowerCase().includes(value.toLowerCase())
     );
-    setFilteredCountries(filtered);
+    setFilteredCountries(countriesToDisplay);
+    setSingleViewCountry(null)
   };
 
   useEffect(() => {
@@ -68,6 +25,7 @@ const App = () => {
       setFilteredCountries(response.data); // Initialize the filtered countries
     });
   }, []);
+
 
   return (
     <>
@@ -79,13 +37,28 @@ const App = () => {
         <h2>Results</h2>
         {filteredCountries.length > 10 && searchValue ? (
           <p>Too many matches, please narrow down your search.</p>
-        ) : (
-          <ul>
-            {filteredCountries.map((country) => (
-              <li key={country.name.common}>{country.name.common}</li>
-            ))}
-          </ul>
-        )}
+        )
+          : filteredCountries.length === 1 && searchValue ? (
+            <DisplayCountry country={filteredCountries[0]}/>
+          ) 
+          : singleViewCountry ? (
+            <DisplayCountry country={singleViewCountry}/>
+          )
+            : (
+              <ul>
+                {filteredCountries.map((country) => (
+                  <li key={country.name.common}>
+                    {country.name.common}
+                    <button onClick={() => {
+                      // console.log(country);
+                      setSingleViewCountry(country)
+                    }}>
+                      Show
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
       </div>
     </>
   );
